@@ -1,0 +1,9 @@
+
+[build]
+  publish = "."
+  command = "echo Deploy สำเร็จแล้วค่ะพ่อ"
+
+[[redirects]]
+  from = "/*"
+  to = "/index.html"
+  status = 200
