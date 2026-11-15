@@ -1,0 +1,9 @@
+
+{
+  "name": "api-deploy-ของพ่อ",
+  "version": "1.0.0",
+  "type": "module",
+  "dependencies": {
+    "@netlify/blobs": "latest"
+  }
+}
