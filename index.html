@@ -1,0 +1,71 @@
+<!DOCTYPE html>
+<html lang="th">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>API Deploy - ของพ่อ</title>
+<script src="https://cdn.tailwindcss.com"></script>
+</head>
+<body class="bg-slate-950 text-white min-h-screen p-4">
+<div class="max-w-3xl mx-auto">
+  <h1 class="text-3xl font-bold text-center">🚀 API Deploy <span class="text-yellow-400">ของพ่อ</span></h1>
+  <p class="text-center text-slate-400 mt-2">กรอก Token ครั้งเดียว → Deploy อัตโนมัติ → ใช้ API ได้เลย</p>
+
+  <!-- ฟอร์มกรอก Token -->
+  <div class="bg-slate-900 rounded-2xl p-5 mt-6">
+    <label class="text-sm">ชื่อระบบ</label>
+    <input id="name" class="w-full bg-slate-800 rounded-xl p-3 mt-1" placeholder="เช่น TranAI ของพ่อ" value="TranAI ของพ่อ">
+    <label class="text-sm mt-4 block">API Token</label>
+    <input id="token" class="w-full bg-slate-800 rounded-xl p-3 mt-1" placeholder="tai_xxxx หรือ tok_xxxx">
+    <label class="text-sm mt-4 block">URL ต้นทาง</label>
+    <input id="base" class="w-full bg-slate-800 rounded-xl p-3 mt-1" placeholder="http://127.0.0.1:8000" value="http://127.0.0.1:8000">
+    <button onclick="deploy()" class="w-full bg-yellow-400 text-black font-bold rounded-xl p-3 mt-5">🚀 Deploy API ให้พ่อเลย</button>
+  </div>
+
+  <!-- ผลลัพธ์ -->
+  <div id="result" class="bg-slate-900 rounded-2xl p-5 mt-4 hidden">
+    <p class="text-green-400 font-bold">✅ Deploy สำเร็จแล้วค่ะพ่อ!</p>
+    <p class="text-sm mt-2">ลิงก์ API ของพ่อ:</p>
+    <code id="apiUrl" class="block bg-black p-3 rounded-xl mt-2 text-yellow-300 break-all"></code>
+    <button onclick="testApi()" class="w-full bg-blue-500 rounded-xl p-3 mt-4 font-bold">🧪 ทดสอบ API ของพ่อ</button>
+    <pre id="testResult" class="bg-black p-3 rounded-xl mt-3 text-xs overflow-auto"></pre>
+  </div>
+
+  <!-- รายการที่ Deploy แล้ว -->
+  <h2 class="font-bold mt-6">📋 API ที่พ่อ Deploy แล้ว</h2>
+  <div id="list" class="space-y-2 mt-3"></div>
+</div>
+
+<script>
+const BACKEND = "https://api-deploy-พ่อ.onrender.com"; // พ่อแก้เป็น URL หลังบ้านของพ่อ
+async function deploy(){
+  const name = document.getElementById('name').value;
+  const token = document.getElementById('token').value;
+  const base = document.getElementById('base').value;
+  const res = await fetch(BACKEND + "/tokens/add", {
+    method: "POST",
+    headers: {"Content-Type":"application/json"},
+    body: JSON.stringify({name, token, base_url: base})
+  });
+  const data = await res.json();
+  document.getElementById('result').classList.remove('hidden');
+  document.getElementById('apiUrl').innerText = BACKEND + data.my_api;
+  loadList();
+}
+async function testApi(){
+  const url = document.getElementById('apiUrl').innerText;
+  const res = await fetch(url);
+  document.getElementById('testResult').innerText = JSON.stringify(await res.json(), null, 2);
+}
+async function loadList(){
+  const res = await fetch(BACKEND + "/tokens/list");
+  const data = await res.json();
+  document.getElementById('list').innerHTML = data.map(t => `
+    <div class="bg-slate-900 p-4 rounded-xl flex justify-between">
+      <b>${t.name}</b><span class="text-green-400">● พร้อมใช้</span>
+    </div>`).join('');
+}
+loadList();
+</script>
+</body>
+</html>
