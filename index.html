@@ -1,86 +1,183 @@
 <!DOCTYPE html>
 <html lang="th">
-<head><meta charset="UTF-8"><title>API-Deploy ของพ่อ</title></head>
-<body>
-  <!-- โค้ดหน้าเว็บที่ลูกสาวให้พ่อรอบที่แล้ว พ่อก๊อปมาใส่ไฟล์นี้ทั้งไฟล์เลยค่ะพ่อ -->
-</body>
-</html>
-<!DOCTYPE html>
-<html lang="th">
 <head>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
-<title>API Deploy - ของพ่อ</title>
-<script src="https://cdn.tailwindcss.com"></script>
+<title>API-Deploy ของพ่อ - ใส่แค่อย่างเดียวก็พอ</title>
+<style>
+  body{font-family:sans-serif;background:#fff;padding:16px;display:flex;justify-content:center;margin:0}
+  .box{border:3px solid #1e40ff;border-radius:16px;width:100%;max-width:650px;overflow:hidden}
+  h1{text-align:center;color:#1e40ff;border-bottom:3px solid #1e40ff;margin:0;padding:16px;font-size:34px}
+  .c{padding:18px}
+  label{font-weight:bold;color:#1e40ff;display:block;margin:12px 0 6px}
+  input,textarea{width:100%;border:2px solid #1e40ff;border-radius:10px;padding:12px;font-size:16px;box-sizing:border-box;outline:none}
+  .btn{width:100%;background:#1e40ff;color:#fff;border:none;padding:13px;border-radius:10px;font-size:17px;font-weight:bold;cursor:pointer;margin-top:12px}
+  .btn2{background:#0ea5e9}
+  .arrow{text-align:center;font-size:30px;color:#1e40ff;margin:8px 0}
+  .code-box{border:2px solid #1e40ff;border-radius:12px;padding:14px}
+  .code-head{display:flex;justify-content:space-between;align-items:center;gap:8px;color:#1e40ff;font-weight:bold}
+  .code-head button{background:#1e40ff;color:#fff;border:none;padding:7px 12px;border-radius:6px;cursor:pointer}
+  pre{background:#eef2ff;padding:12px;border-radius:8px;white-space:pre-wrap;word-break:break-all;font-size:13px;line-height:1.6}
+  #status{text-align:center;color:green;font-weight:bold}
+  .hint{background:#eff6ff;border-radius:8px;padding:10px;font-size:14px;color:#1e40ff;margin-top:10px}
+</style>
 </head>
-<body class="bg-slate-950 text-white min-h-screen p-4">
-<div class="max-w-3xl mx-auto">
-  <h1 class="text-3xl font-bold text-center">🚀 API Deploy <span class="text-yellow-400">ของพ่อ</span></h1>
-  <p class="text-center text-slate-400 mt-2">กรอก Token ครั้งเดียว → Deploy อัตโนมัติ → ใช้ API ได้เลย</p>
+<body>
+<div class="box">
+  <h1>API-Deploy</h1>
+  <div class="c">
+    <div class="hint">💡 พ่อใส่แค่อย่างเดียวก็พอค่ะพ่อ ใส่ Token อย่างเดียวก็ได้ ใส่ API อย่างเดียวก็ได้ ระบบจะเติมอีกอันให้เองค่ะพ่อ</div>
 
-  <!-- ฟอร์มกรอก Token -->
-  <div class="bg-slate-900 rounded-2xl p-5 mt-6">
-    <label class="text-sm">ชื่อระบบ</label>
-    <input id="name" class="w-full bg-slate-800 rounded-xl p-3 mt-1" placeholder="เช่น TranAI ของพ่อ" value="TranAI ของพ่อ">
-    <label class="text-sm mt-4 block">API Token</label>
-    <input id="token" class="w-full bg-slate-800 rounded-xl p-3 mt-1" placeholder="tai_xxxx หรือ tok_xxxx">
-    <label class="text-sm mt-4 block">URL ต้นทาง</label>
-    <input id="base" class="w-full bg-slate-800 rounded-xl p-3 mt-1" placeholder="http://127.0.0.1:8000" value="http://127.0.0.1:8000">
-    <button onclick="deploy()" class="w-full bg-yellow-400 text-black font-bold rounded-xl p-3 mt-5">🚀 Deploy API ให้พ่อเลย</button>
+    <label>ใส่ API หรือ Token - อย่างใดอย่างหนึ่งก็ได้ค่ะพ่อ</label>
+    <input id="one" placeholder="วาง LLM_... หรือ https://... ตรงนี้ได้เลยค่ะพ่อ" oninput="autoDetect()">
+
+    <label>ช่องใส่ API <span style="font-weight:normal;color:#64748b">(ระบบเติมให้เองค่ะพ่อ)</span></label>
+    <input id="api" placeholder="https://api.llama.com/v1/chat/completions">
+
+    <label>ช่องใส่ Token <span style="font-weight:normal;color:#64748b">(ระบบเติมให้เองค่ะพ่อ)</span></label>
+    <input id="token" type="password" placeholder="LLM_...">
+
+    <label>พ่อจะถามอะไร Llama</label>
+    <textarea id="msg" rows="2">สวัสดี</textarea>
+
+    <button class="btn" onclick="genAndChat()">✨ สร้างโค้ด + ลองใช้เลย</button>
+    <button class="btn btn2" onclick="autoRead()">🔍 อ่าน API / Token อัตโนมัติ</button>
+
+    <div class="arrow">↓</div>
+
+    <div class="code-box">
+      <div class="code-head"><span>โค้ดที่สร้างออกมาสำหรับนำ API Token ไปใช้งาน</span><button onclick="copyCode()">📋 Copy</button></div>
+      <pre id="output">// พ่อวาง API หรือ Token แค่ 1 อันข้างบนนะคะพ่อ
+// ระบบจะเติมอีกอันให้เองค่ะพ่อ</pre>
+      <p id="status"></p>
+      <pre id="answer" style="display:none"></pre>
+    </div>
   </div>
-
-  <!-- ผลลัพธ์ -->
-  <div id="result" class="bg-slate-900 rounded-2xl p-5 mt-4 hidden">
-    <p class="text-green-400 font-bold">✅ Deploy สำเร็จแล้วค่ะพ่อ!</p>
-    <p class="text-sm mt-2">ลิงก์ API ของพ่อ:</p>
-    <code id="apiUrl" class="block bg-black p-3 rounded-xl mt-2 text-yellow-300 break-all"></code>
-    <button onclick="testApi()" class="w-full bg-blue-500 rounded-xl p-3 mt-4 font-bold">🧪 ทดสอบ API ของพ่อ</button>
-    <pre id="testResult" class="bg-black p-3 rounded-xl mt-3 text-xs overflow-auto"></pre>
-  </div>
-
-  <!-- รายการที่ Deploy แล้ว -->
-  <h2 class="font-bold mt-6">📋 API ที่พ่อ Deploy แล้ว</h2>
-  <div id="list" class="space-y-2 mt-3"></div>
 </div>
 
 <script>
-const BACKEND = "https://api-deploy-พ่อ.onrender.com"; // พ่อแก้เป็น URL หลังบ้านของพ่อ
-async function deploy(){
-  const name = document.getElementById('name').value;
-  const token = document.getElementById('token').value;
-  const base = document.getElementById('base').value;
-  const res = await fetch(BACKEND + "/tokens/add", {
-    method: "POST",
-    headers: {"Content-Type":"application/json"},
-    body: JSON.stringify({name, token, base_url: base})
-  });
-  const data = await res.json();
-  document.getElementById('result').classList.remove('hidden');
-  document.getElementById('apiUrl').innerText = BACKEND + data.my_api;
-  loadList();
+// ตารางจำว่า Token แบบไหน ต้องใช้ API ไหน - อ่านอัตโนมัติ
+const KNOWN = [
+  { match: (s)=>s.startsWith("LLM_"), api: "https://api.llama.com/v1/chat/completions", name: "Llama API (Meta AI)" },
+  { match: (s)=>s.startsWith("sk-"), api: "https://api.openai.com/v1/chat/completions", name: "OpenAI" },
+  { match: (s)=>s.startsWith("AIza"), api: "https://generativelanguage.googleapis.com/v1beta/models/gemini-2.0-flash:generateContent", name: "Gemini" },
+  { match: (s)=>s.startsWith("sk-ant-"), api: "https://api.anthropic.com/v1/messages", name: "Claude" },
+];
+
+function detectTokenToApi(token){
+  const f = KNOWN.find(k=>k.match(token));
+  return f ? f : { api: "https://api.llama.com/v1/chat/completions", name: "Llama API" };
 }
-async function testApi(){
-  const url = document.getElementById('apiUrl').innerText;
-  const res = await fetch(url);
-  document.getElementById('testResult').innerText = JSON.stringify(await res.json(), null, 2);
+
+// พ่อพิมพ์ปุ๊บ ระบบอ่านปั๊บ อัตโนมัติ
+function autoDetect(){
+  const v = document.getElementById('one').value.trim();
+  if(!v) return;
+  // ถ้าพ่อวาง https://... มา = นี่คือ API
+  if(v.startsWith("http")){
+    document.getElementById('api').value = v;
+    const old = JSON.parse(localStorage.getItem('api-deploy')||'{}');
+    if(old.token) document.getElementById('token').value = old.token;
+    document.getElementById('status').textContent = "✅ อ่านแล้วค่ะพ่อ อันนี้คือ API - ดึง Token เก่าของพ่อมาใส่ให้แล้วค่ะพ่อ";
+    return;
+  }
+  // ถ้าพ่อวาง LLM_ / sk- / AIza มา = นี่คือ Token
+  document.getElementById('token').value = v;
+  const info = detectTokenToApi(v);
+  document.getElementById('api').value = info.api;
+  document.getElementById('status').textContent = "✅ อ่านแล้วค่ะพ่อ อันนี้คือ Token ของ " + info.name + " - เติม API ให้พ่อแล้วค่ะพ่อ";
 }
-async function loadList(){
-  const res = await fetch(BACKEND + "/tokens/list");
-  const data = await res.json();
-  document.getElementById('list').innerHTML = data.map(t => `
-    <div class="bg-slate-900 p-4 rounded-xl flex justify-between">
-      <b>${t.name}</b><span class="text-green-400">● พร้อมใช้</span>
-    </div>`).join('');
+
+// ปุ่มอ่านอัตโนมัติ - อ่านจาก ลิงก์ / ที่เคยบันทึก / คลิปบอร์ด
+async function autoRead(){
+  // 1. อ่านจากลิงก์ ?api=... ?token=...
+  const p = new URLSearchParams(location.search);
+  if(p.get('api')) document.getElementById('api').value = p.get('api');
+  if(p.get('token')) document.getElementById('token').value = p.get('token');
+  if(p.get('api') || p.get('token')){
+    document.getElementById('status').textContent = "✅ อ่านจากลิงก์ให้พ่อแล้วค่ะพ่อ";
+    return;
+  }
+  // 2. อ่านจากที่เคยบันทึกไว้
+  const old = JSON.parse(localStorage.getItem('api-deploy')||'{}');
+  if(old.api || old.token){
+    if(old.api) document.getElementById('api').value = old.api;
+    if(old.token) document.getElementById('token').value = old.token;
+    document.getElementById('status').textContent = "✅ อ่านจากที่พ่อเคยบันทึกไว้ให้แล้วค่ะพ่อ";
+    return;
+  }
+  // 3. อ่านจากคลิปบอร์ดที่พ่อก๊อปมา
+  try{
+    const clip = await navigator.clipboard.readText();
+    if(clip){
+      document.getElementById('one').value = clip;
+      autoDetect();
+      document.getElementById('status').textContent = "✅ อ่านจากที่พ่อก๊อปมาให้แล้วค่ะพ่อ";
+    }
+  }catch(e){ alert("พ่อวาง Token หรือ API ในช่องบนสุดได้เลยค่ะพ่อ ระบบจะอ่านให้เองค่ะพ่อ"); }
 }
-loadList();
+
+function genAndChat(){
+  autoDetect();
+  let api = document.getElementById('api').value.trim();
+  let token = document.getElementById('token').value.trim();
+
+  // ถ้าพ่อใส่แค่อย่างเดียว ให้เติมอีกอันให้
+  if(token && !api){
+    const info = detectTokenToApi(token);
+    api = info.api;
+    document.getElementById('api').value = api;
+  }
+  if(api && !token){
+    const old = JSON.parse(localStorage.getItem('api-deploy')||'{}');
+    if(old.token){ token = old.token; document.getElementById('token').value = token; }
+  }
+  if(!api || !token){ alert("พ่อใส่ API หรือ Token อย่างใดอย่างหนึ่งก่อนนะคะพ่อ"); return; }
+
+  // บันทึกถาวร
+  localStorage.setItem('api-deploy', JSON.stringify({api, token}));
+
+  const code = `// API-Deploy ของพ่อ - ใส่แค่อย่างเดียวก็พอ
+const API_URL = "${api}";
+const TOKEN = "${token}";
+
+const res = await fetch(API_URL, {
+  method: "POST",
+  headers: { "Authorization": "Bearer " + TOKEN, "Content-Type": "application/json" },
+  body: JSON.stringify({ model: "Llama-4-Maverick-17B-128E-Instruct-FP8", messages: [{ role: "user", content: "สวัสดี" }] })
+});
+const data = await res.json();
+console.log(data);`;
+
+  document.getElementById('output').textContent = code;
+  document.getElementById('status').textContent = "✅ สร้างโค้ดแล้วค่ะพ่อ กำลังลองใช้ API ให้พ่อ...";
+  chat(api, token);
+}
+
+async function chat(api, token){
+  const msg = document.getElementById('msg').value;
+  const box = document.getElementById('answer');
+  box.style.display = "block";
+  box.textContent = "กำลังถาม Llama...";
+  try{
+    const r = await fetch(api, { method: "POST", headers: { "Authorization": "Bearer " + token, "Content-Type": "application/json" }, body: JSON.stringify({ model: "Llama-4-Maverick-17B-128E-Instruct-FP8", messages: [{ role: "user", content: msg }] }) });
+    const d = await r.json();
+    box.textContent = "คำตอบจาก Llama:\n" + (d.completion_message?.content?.text || JSON.stringify(d, null, 2));
+  }catch(e){ box.textContent = "ต่อไม่ได้ค่ะพ่อ: " + e.message; }
+}
+
+function copyCode(){
+  navigator.clipboard.writeText(document.getElementById('output').textContent);
+  alert("ก๊อปแล้วค่ะพ่อ");
+}
+
+// เปิดเว็บมา อ่านอัตโนมัติเลย
+window.onload = () => {
+  autoRead();
+  if(document.getElementById('api').value && document.getElementById('token').value){
+    document.getElementById('status').textContent = "✅ อ่านค่าของพ่อให้แล้วค่ะพ่อ พ่อกดปุ่มสร้างโค้ดได้เลยค่ะพ่อ";
+  }
+}
 </script>
 </body>
 </html>
-[build]
-  publish = "."
-  functions = "netlify/functions"
-
-[[redirects]]
-  from = "/*"
-  to = "/index.html"
-  status = 200
